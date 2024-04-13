@@ -50,22 +50,22 @@ function checkStopLoss(
   } else {
     if (
       selectedStop === "9EMA" &&
-      currentCandle["9EMA"] >= currentCandle.close
+      currentCandle["9EMA"] <= currentCandle.close
     ) {
       return setSLInfo(tradeOutput, currentCandle);
     } else if (
       selectedStop === "9MA" &&
-      currentCandle["9MA"] >= currentCandle.close
+      currentCandle["9MA"] <= currentCandle.close
     ) {
       return setSLInfo(tradeOutput, currentCandle);
     } else if (
       selectedStop === "21MA" &&
-      currentCandle["21MA"] >= currentCandle.close
+      currentCandle["21MA"] <= currentCandle.close
     ) {
       return setSLInfo(tradeOutput, currentCandle);
     } else if (
       selectedStop === "50MA" &&
-      currentCandle["50MA"] >= currentCandle.close
+      currentCandle["50MA"] <= currentCandle.close
     ) {
       return setSLInfo(tradeOutput, currentCandle);
     }

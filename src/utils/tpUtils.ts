@@ -38,33 +38,35 @@ function tryTakeProfit(
   if (currentTrade.direction === "L") {
     tradeOutput.MAE = Math.min(tradeOutput.MAE, currentCandle.low);
     tradeOutput.MFE = Math.max(tradeOutput.MFE, currentCandle.high);
-    if (
-      !tradeOutput.tp1Hit &&
-      currentCandle.low <= currentTrade.exit1 &&
-      currentCandle.high >= currentTrade.exit1
-    ) {
-      tradeOutput.tp1Hit = true;
-      tradeOutput.tp1HitCandle = currentCandle;
-    }
-
-    if (
-      typeof currentTrade.exit2 !== "undefined" &&
-      !tradeOutput.tp2Hit &&
-      currentCandle.low <= (currentTrade.exit2 as number) &&
-      currentCandle.high >= (currentTrade.exit2 as number)
-    ) {
-      tradeOutput.tp2Hit = true;
-      tradeOutput.tp2HitCandle = currentCandle;
-    }
-    if (
-      typeof currentTrade.exit3 !== "undefined" &&
-      !tradeOutput.tp3Hit &&
-      currentCandle.low <= (currentTrade.exit3 as number) &&
-      currentCandle.high >= (currentTrade.exit3 as number)
-    ) {
-      tradeOutput.tp3Hit = true;
-      tradeOutput.tp3HitCandle = currentCandle;
-    }
+  } else {
+    tradeOutput.MAE = Math.max(tradeOutput.MAE, currentCandle.high);
+    tradeOutput.MFE = Math.min(tradeOutput.MFE, currentCandle.low);
+  }
+  if (
+    !tradeOutput.tp1Hit &&
+    currentCandle.low <= currentTrade.exit1 &&
+    currentCandle.high >= currentTrade.exit1
+  ) {
+    tradeOutput.tp1Hit = true;
+    tradeOutput.tp1HitCandle = currentCandle;
+  }
+  if (
+    typeof currentTrade.exit2 !== "undefined" &&
+    !tradeOutput.tp2Hit &&
+    currentCandle.low <= (currentTrade.exit2 as number) &&
+    currentCandle.high >= (currentTrade.exit2 as number)
+  ) {
+    tradeOutput.tp2Hit = true;
+    tradeOutput.tp2HitCandle = currentCandle;
+  }
+  if (
+    typeof currentTrade.exit3 !== "undefined" &&
+    !tradeOutput.tp3Hit &&
+    currentCandle.low <= (currentTrade.exit3 as number) &&
+    currentCandle.high >= (currentTrade.exit3 as number)
+  ) {
+    tradeOutput.tp3Hit = true;
+    tradeOutput.tp3HitCandle = currentCandle;
   }
 }
 

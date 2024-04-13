@@ -1,4 +1,4 @@
-import chalk from "chalk";
+import chalk, { Chalk } from "chalk";
 import { StopLoss, TradeOutcome } from "../types.js";
 
 /**
@@ -32,6 +32,8 @@ function generateSummary(
   let numTP3sHit = 0;
   let numTP2s = 0;
   let numTP3s = 0;
+  let averageMFE = 0;
+  let averageMAE = 0;
   for (let i = 0; i < allTradeOutcomes.length; i++) {
     if (allTradeOutcomes[i].tp1Hit) {
       wins++;
@@ -50,6 +52,8 @@ function generateSummary(
         numTP3sHit++;
       }
     }
+    averageMAE += allTradeOutcomes[i].MAE;
+    averageMFE += allTradeOutcomes[i].MFE;
   }
   const winRate = Number(((wins / allTradeOutcomes.length) * 100).toFixed(2));
 
@@ -71,6 +75,20 @@ function generateSummary(
     const tp3WinRate = Number(((numTP3sHit / numTP3s) * 100).toFixed(2));
     generateWinRateText(tp3WinRate, 3);
   }
+  console.log(
+    chalk.cyanBright(
+      `Average MAE: ${((averageMAE / allTradeOutcomes.length) * 100).toFixed(
+        2
+      )}%`
+    )
+  );
+  console.log(
+    chalk.magentaBright(
+      `Average MFE: ${((averageMFE / allTradeOutcomes.length) * 100).toFixed(
+        2
+      )}%`
+    )
+  );
 }
 
 export { generateSummary };

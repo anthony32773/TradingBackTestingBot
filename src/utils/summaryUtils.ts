@@ -52,8 +52,29 @@ function generateSummary(
         numTP3sHit++;
       }
     }
-    averageMAE += allTradeOutcomes[i].MAE;
-    averageMFE += allTradeOutcomes[i].MFE;
+    let tempMFEPercentage = 0;
+    let tempMAEPercentage = 0;
+    if (allTradeOutcomes[i].trade.direction === "L") {
+      tempMFEPercentage =
+        ((allTradeOutcomes[i].MFE - allTradeOutcomes[i].trade.price) /
+          allTradeOutcomes[i].trade.price) *
+        100;
+      tempMAEPercentage =
+        ((allTradeOutcomes[i].trade.price - allTradeOutcomes[i].MAE) /
+          allTradeOutcomes[i].trade.price) *
+        100;
+    } else {
+      tempMFEPercentage =
+        ((allTradeOutcomes[i].trade.price - allTradeOutcomes[i].MFE) /
+          allTradeOutcomes[i].trade.price) *
+        100;
+      tempMAEPercentage =
+        ((allTradeOutcomes[i].MAE - allTradeOutcomes[i].trade.price) /
+          allTradeOutcomes[i].trade.price) *
+        100;
+    }
+    averageMAE += tempMAEPercentage;
+    averageMFE += tempMFEPercentage;
   }
   const winRate = Number(((wins / allTradeOutcomes.length) * 100).toFixed(2));
 
@@ -77,16 +98,12 @@ function generateSummary(
   }
   console.log(
     chalk.cyanBright(
-      `Average MAE: ${((averageMAE / allTradeOutcomes.length) * 100).toFixed(
-        2
-      )}%`
+      `Average MFE: ${(averageMFE / allTradeOutcomes.length).toFixed(2)}%`
     )
   );
   console.log(
     chalk.magentaBright(
-      `Average MFE: ${((averageMFE / allTradeOutcomes.length) * 100).toFixed(
-        2
-      )}%`
+      `Average MAE: ${(averageMAE / allTradeOutcomes.length).toFixed(2)}%`
     )
   );
 }

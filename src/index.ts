@@ -23,7 +23,6 @@ if (setupData[0] && setupData[1]) {
       message: "Choose what stop you'd like to test against",
     },
   ]);
-  console.log(result);
   const selectedStop: StopLoss = result.stop;
   executeTrades(candles, trades, tradeOutput, selectedStop);
   generateSummary(tradeOutput, selectedStop);

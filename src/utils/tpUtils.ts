@@ -21,7 +21,7 @@ function checkIfProfit(tradeOutput: TradeOutcome): boolean {
     }
   }
   return false;
-}
+} 
 
 /**
  * Try to take profit on the trade and check if each TP level was hit. Record results on the trade outcome.
@@ -49,6 +49,7 @@ function tryTakeProfit(
   ) {
     tradeOutput.tp1Hit = true;
     tradeOutput.tp1HitCandle = currentCandle;
+    tradeOutput.MFE = currentTrade.exit1;
   }
   if (
     typeof currentTrade.exit2 !== "undefined" &&
@@ -58,6 +59,7 @@ function tryTakeProfit(
   ) {
     tradeOutput.tp2Hit = true;
     tradeOutput.tp2HitCandle = currentCandle;
+    tradeOutput.MFE = currentTrade.exit2;
   }
   if (
     typeof currentTrade.exit3 !== "undefined" &&
@@ -67,6 +69,7 @@ function tryTakeProfit(
   ) {
     tradeOutput.tp3Hit = true;
     tradeOutput.tp3HitCandle = currentCandle;
+    tradeOutput.MFE = currentTrade.exit3;
   }
 }
 

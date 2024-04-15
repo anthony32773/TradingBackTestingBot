@@ -1,5 +1,6 @@
-import chalk, { Chalk } from "chalk";
+import chalk from "chalk";
 import { StopLoss, TradeOutcome } from "../types.js";
+import { Duration, DurationLikeObject, DurationUnits } from "luxon";
 
 /**
  * Generate win rate summary text for each TP level.
@@ -24,7 +25,8 @@ function generateWinRateText(winRate: number, whichTP: 1 | 2 | 3): void {
  */
 function generateSummary(
   allTradeOutcomes: TradeOutcome[],
-  selectedStop: StopLoss
+  selectedStop: StopLoss,
+  selectedTimeFrame: DurationUnits
 ): void {
   let wins = 0;
   let losses = 0;
@@ -34,6 +36,7 @@ function generateSummary(
   let numTP3s = 0;
   let averageMFE = 0;
   let averageMAE = 0;
+  let averageTimeInTrade = 0;
   for (let i = 0; i < allTradeOutcomes.length; i++) {
     if (allTradeOutcomes[i].tp1Hit) {
       wins++;
@@ -75,6 +78,31 @@ function generateSummary(
     }
     averageMAE += tempMAEPercentage;
     averageMFE += tempMFEPercentage;
+    let diff: Duration<boolean> | undefined = undefined;
+    if (allTradeOutcomes[i].slHit && allTradeOutcomes[i].slHitCandle) {
+      diff = allTradeOutcomes[i].slHitCandle?.time.diff(
+        allTradeOutcomes[i].trade.CandleDate,
+        selectedTimeFrame
+      );
+    } else if (allTradeOutcomes[i].tp3Hit) {
+      diff = allTradeOutcomes[i].tp3HitCandle!.time.diff(
+        allTradeOutcomes[i].trade.CandleDate,
+        selectedTimeFrame
+      );
+    } else if (allTradeOutcomes[i].tp2Hit) {
+      diff = allTradeOutcomes[i].tp2HitCandle!.time.diff(
+        allTradeOutcomes[i].trade.CandleDate,
+        selectedTimeFrame
+      );
+    } else {
+      diff = allTradeOutcomes[i].tp1HitCandle!.time.diff(
+        allTradeOutcomes[i].trade.CandleDate,
+        selectedTimeFrame
+      );
+    }
+    if (diff) {
+      averageTimeInTrade += diff[selectedTimeFrame as keyof Duration] as number;
+    }
   }
   const winRate = Number(((wins / allTradeOutcomes.length) * 100).toFixed(2));
 
@@ -84,9 +112,7 @@ function generateSummary(
       `Losses: ${losses}`
     )}\n`
   );
-  console.log(
-    `${chalk.yellowBright("Selected Stop:")} ${chalk.blueBright(selectedStop)}`
-  );
+  console.log(chalk.yellowBright(`Selected Stop: ${selectedStop}`));
   generateWinRateText(winRate, 1);
   if (numTP2s) {
     const tp2WinRate = Number(((numTP2sHit / numTP2s) * 100).toFixed(2));
@@ -104,6 +130,15 @@ function generateSummary(
   console.log(
     chalk.magentaBright(
       `Average MAE: ${(averageMAE / allTradeOutcomes.length).toFixed(2)}%`
+    )
+  );
+  console.log(
+    chalk.blueBright(
+      `Average Time in Trades: ${Math.round(
+        averageTimeInTrade / allTradeOutcomes.length
+      )} ${(selectedTimeFrame as string)[0].toUpperCase()}${(
+        selectedTimeFrame as string
+      ).substring(1)}`
     )
   );
 }

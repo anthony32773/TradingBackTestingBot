@@ -40,7 +40,7 @@ if (setupData[0] && setupData[1]) {
     },
   ]);
   const selectedStop: StopLoss = result.stop;
-  const selectedTimeFrame: DurationUnits = timeframe.timeframe.toLowerCase();
+  const selectedTimeFrame: DurationUnits = timeframe.timeframe;
   executeTrades(candles, trades, tradeOutput, selectedStop);
   generateSummary(tradeOutput, selectedStop, selectedTimeFrame);
 }

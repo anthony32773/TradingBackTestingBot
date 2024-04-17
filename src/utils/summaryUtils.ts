@@ -1,6 +1,6 @@
 import chalk from "chalk";
-import { StopLoss, TradeOutcome } from "../types.js";
-import { Duration, DurationLikeObject, DurationUnits } from "luxon";
+import { StopLoss, StrategyOutcome, TradeOutcome } from "../types.js";
+import { Duration, DurationUnits } from "luxon";
 
 /**
  * Generate win rate summary text for each TP level.
@@ -21,13 +21,14 @@ function generateWinRateText(winRate: number, whichTP: 1 | 2 | 3): void {
 /**
  * Generate the win loss summary for the trades tested.
  * @param {TradeOutcome[]} allTradeOutcomes - Outcomes of all trades.
- * @returns {void}
+ * @returns {StrategyOutcome | undefined}
  */
 function generateSummary(
   allTradeOutcomes: TradeOutcome[],
   selectedStop: StopLoss,
-  selectedTimeFrame: DurationUnits
-): void {
+  selectedTimeFrame: DurationUnits,
+  optimize: boolean
+): StrategyOutcome | undefined {
   let wins = 0;
   let losses = 0;
   let numTP2sHit = 0;
@@ -104,43 +105,79 @@ function generateSummary(
       averageTimeInTrade += diff[selectedTimeFrame as keyof Duration] as number;
     }
   }
-  const winRate = Number(((wins / allTradeOutcomes.length) * 100).toFixed(2));
+  const finalOutcome: StrategyOutcome = {
+    wins,
+    losses,
+    averageTimeInTrade,
+    averageMAE,
+    averageMFE,
+    numberOfTrades: allTradeOutcomes.length,
+    numTP2s,
+    numTP2sHit,
+    numTP3s,
+    numTP3sHit,
+    selectedStop,
+  };
+  if (!optimize) {
+    generateSummaryText(finalOutcome, selectedTimeFrame as string);
+  } else {
+    return finalOutcome;
+  }
+}
 
+/**
+ * Generate final summary text.
+ * @param {StrategyOutcome} outcome - Final result of all trades.
+ * @param {string} selectedTimeFrame - What time frame were the trades developed on.
+ */
+function generateSummaryText(
+  outcome: StrategyOutcome,
+  selectedTimeFrame: string
+) {
+  const winRate = Number(
+    ((outcome.wins / outcome.numberOfTrades) * 100).toFixed(2)
+  );
   console.log(chalk.bold("Summary:"));
   console.log(
-    `${chalk.greenBright(`Wins: ${wins}`)}  ${chalk.redBright(
-      `Losses: ${losses}`
+    `${chalk.greenBright(`Wins: ${outcome.wins}`)}  ${chalk.redBright(
+      `Losses: ${outcome.losses}`
     )}\n`
   );
-  console.log(chalk.yellowBright(`Selected Stop: ${selectedStop}`));
+  console.log(chalk.yellowBright(`Selected Stop: ${outcome.selectedStop}`));
   generateWinRateText(winRate, 1);
-  if (numTP2s) {
-    const tp2WinRate = Number(((numTP2sHit / numTP2s) * 100).toFixed(2));
+  if (outcome.numTP2s) {
+    const tp2WinRate = Number(
+      ((outcome.numTP2sHit / outcome.numTP2s) * 100).toFixed(2)
+    );
     generateWinRateText(tp2WinRate, 2);
   }
-  if (numTP3s) {
-    const tp3WinRate = Number(((numTP3sHit / numTP3s) * 100).toFixed(2));
+  if (outcome.numTP3s) {
+    const tp3WinRate = Number(
+      ((outcome.numTP3sHit / outcome.numTP3s) * 100).toFixed(2)
+    );
     generateWinRateText(tp3WinRate, 3);
   }
   console.log(
     chalk.cyanBright(
-      `Average MFE: ${(averageMFE / allTradeOutcomes.length).toFixed(2)}%`
+      `Average MFE: ${(outcome.averageMFE / outcome.numberOfTrades).toFixed(
+        2
+      )}%`
     )
   );
   console.log(
     chalk.magentaBright(
-      `Average MAE: ${(averageMAE / allTradeOutcomes.length).toFixed(2)}%`
+      `Average MAE: ${(outcome.averageMAE / outcome.numberOfTrades).toFixed(
+        2
+      )}%`
     )
   );
   console.log(
     chalk.blueBright(
       `Average Time in Trades: ${Math.round(
-        averageTimeInTrade / allTradeOutcomes.length
-      )} ${(selectedTimeFrame as string)[0].toUpperCase()}${(
-        selectedTimeFrame as string
-      ).substring(1)}`
+        outcome.averageTimeInTrade / outcome.numberOfTrades
+      )} ${selectedTimeFrame[0].toUpperCase()}${selectedTimeFrame.substring(1)}`
     )
   );
 }
 
-export { generateSummary };
+export { generateSummary, generateSummaryText };
